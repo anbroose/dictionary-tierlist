@@ -132,12 +132,6 @@ export default function Home() {
             {prevWord ? `:  ${prevWord}` : "--"}
           </button>
         </div>
-
-        <div>
-          <h3>Rankings:</h3>
-          <pre>{JSON.stringify(rankings, null, 2)}</pre>
-        </div>
-
         {/* Show FinalTierList only when all words are rated */}
         {rankedWords.length === totalWords && (
           <FinalTierList rankings={rankings} />

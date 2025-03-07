@@ -3,7 +3,8 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Change light to dark, preference */
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;

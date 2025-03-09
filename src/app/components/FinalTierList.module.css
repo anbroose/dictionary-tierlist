@@ -4,7 +4,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #1A1A1A; /* Ensure background is black */
+  min-height: 100vh; /* Ensures it fully covers viewport */
+  background-color: #1A1A1A; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -27,6 +28,7 @@
 
 .tierTable {
   width: 100%;
+  table-layout: fixed; /* Ensures consistent column sizing */
   border-collapse: collapse;
   margin-top: 20px;
 }
@@ -37,12 +39,12 @@
 }
 
 .tierLetter {
-  font-size: 42px; /* Keep letter size the same */
+  font-size: 3vw; /* Makes it scale with the screen */
   font-weight: bold;
   color: black;
   text-align: center;
-  width: 120px; /* Increase width */
-  height: 140px; /* Increase height */
+  width: 10vw; /* Scales dynamically */
+  height: 12vh; /* Ensures it scales properly */
   align-items: center;
   justify-content: center;
   border: 8px solid black;
@@ -62,23 +64,28 @@
   border: 4px solid black;
   background-color: #1A1A1A; /* Ensures the whole cell has a black background */
   padding: 10px;
-  max-height: 200px; /* Limit the height for scrolling */
-  overflow-x: auto;
+  max-height: 25vh; /* Controls height */
+  overflow-x: auto; /* Enables horizontal scrolling */
+  overflow-y: hidden; /* Prevents vertical scrolling */
   text-align: left;
+  
   display: grid;
   grid-auto-flow: column; /* Forces unlimited columns */
-  grid-template-rows: repeat(3, auto); /* Limits rows to 3 */  column-gap: 2px; /* Reduce only horizontal spacing */
-  row-gap: 6px; /* Keeps words slightly spaced vertically */
-  width: 100%; /* Make sure it takes up the full table cell width */
-  height: 140px; /* Match the height of the tierLetter */
-  box-sizing: border-box; /* Ensure padding doesn’t affect the total size */
+  grid-template-rows: repeat(3, auto); /* Limits rows to 3 */
+  column-gap: 10px; /* Space between columns */
+  row-gap: 6px; /* Space between words */
+  
+  width: 100%;
+  height: 12vh;
+  box-sizing: border-box; /* Ensures padding doesn’t affect the total size */
 }
 
 .tierWords .rankItem {
-  font-size: 18px;
+  font-size: 1.2vw; /* Adjusts dynamically with screen size */
   color: white; /* White text */
-  white-space: nowrap; /* Ensures words stay in a single line */
+  white-space: nowrap; /* Prevents words from breaking into multiple lines */
 }
+
 
 .closeButton {
   background-color: #007bff;

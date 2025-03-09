@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import rawWords from "./words/cleanedWords.json";
@@ -8,7 +9,8 @@ import { FinalTierList } from "./components/FinalTierList";
 const words: string[] = rawWords as string[];
 
 export default function Home() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
   const [word, setWord] = useState("Loading...");
   const [pos, setPOS] = useState("Loading...");
   const [definition, setDefinition] = useState("Fetching definition...");
@@ -28,28 +30,24 @@ export default function Home() {
     F: "#7E66D9",
   };
 
-  const totalWords = words.length;
-
   useEffect(() => {
-    // Load rankings & progress from localStorage
-    const savedRankings = localStorage.getItem("rankings");
     const savedIndex = localStorage.getItem("currentIndex");
 
-    if (savedRankings) {
-      const parsedRankings = JSON.parse(savedRankings);
-      setRankings(parsedRankings);
-      setRankedWords(Object.keys(parsedRankings)); // Set ranked words
+    if (savedIndex !== null) {
+      setCurrentIndex(parseInt(savedIndex, 10));
+    } else {
+      setCurrentIndex(0);
     }
 
-    if (savedIndex) {
-      setCurrentIndex(parseInt(savedIndex, 10)); // Restore index
-    }
+    setLoading(false);
   }, []);
 
+  // Fetch only when currentIndex is set and not loading
   useEffect(() => {
-    fetchWord(words[currentIndex]);
-    localStorage.setItem("currentIndex", currentIndex.toString()); // Save index
-  }, [currentIndex]);
+    if (currentIndex !== null && !loading) {
+      fetchWord(words[currentIndex]);
+    }
+  }, [currentIndex, loading]);
 
   async function fetchWord(word: string) {
     try {
@@ -77,11 +75,12 @@ export default function Home() {
   }
 
   const handleTierClick = (tier: string) => {
-    if (rankedWords.includes(word)) return;
+    if (rankedWords.includes(word) || currentIndex === null) return;
 
     setRankings((prevRankings) => {
       const newRankings = { ...prevRankings, [word]: tier };
-      localStorage.setItem("rankings", JSON.stringify(newRankings)); // Save rankings
+      // Save rankings
+      localStorage.setItem("rankings", JSON.stringify(newRankings));
       return newRankings;
     });
 
@@ -92,7 +91,10 @@ export default function Home() {
     setFlashColor(tierColors[tier]);
     setTimeout(() => setFlashColor(null), 500);
 
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+    const newIndex = (currentIndex + 1) % words.length;
+    setCurrentIndex(newIndex);
+    // Save progress
+    localStorage.setItem("currentIndex", newIndex.toString());
   };
 
   const handlePreviousWord = () => {
@@ -106,6 +108,9 @@ export default function Home() {
     }
   };
 
+  // Show loading
+  if (loading) return <div className={styles.loadingScreen}>Loading...</div>;
+
   return (
     <div
       style={{
@@ -115,7 +120,8 @@ export default function Home() {
     >
       <main className={styles.main}>
         <h2 className={styles.wordCount}>
-          {currentIndex + 1} / {words.length}
+          {currentIndex !== null ? currentIndex + 1 : "Loading"} /{" "}
+          {words.length}
         </h2>
         <p className={styles.dictionaryWord}>{word}</p>
 
@@ -152,7 +158,7 @@ export default function Home() {
           </button>
         </div>
 
-        {rankedWords.length === totalWords && (
+        {rankedWords.length === words.length && (
           <FinalTierList rankings={rankings} />
         )}
       </main>

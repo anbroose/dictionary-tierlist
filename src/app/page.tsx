@@ -31,12 +31,24 @@ export default function Home() {
   const totalWords = words.length;
 
   useEffect(() => {
-    fetchWord(words[currentIndex]);
-
+    // Load rankings & progress from localStorage
     const savedRankings = localStorage.getItem("rankings");
+    const savedIndex = localStorage.getItem("currentIndex");
+
     if (savedRankings) {
-      setRankings(JSON.parse(savedRankings));
+      const parsedRankings = JSON.parse(savedRankings);
+      setRankings(parsedRankings);
+      setRankedWords(Object.keys(parsedRankings)); // Set ranked words
     }
+
+    if (savedIndex) {
+      setCurrentIndex(parseInt(savedIndex, 10)); // Restore index
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchWord(words[currentIndex]);
+    localStorage.setItem("currentIndex", currentIndex.toString()); // Save index
   }, [currentIndex]);
 
   async function fetchWord(word: string) {
@@ -61,25 +73,21 @@ export default function Home() {
   }
 
   const handleTierClick = (tier: string) => {
-    // Prevent re-ranking of the same word
     if (rankedWords.includes(word)) return;
 
     setRankings((prevRankings) => {
       const newRankings = { ...prevRankings, [word]: tier };
-      localStorage.setItem("rankings", JSON.stringify(newRankings));
+      localStorage.setItem("rankings", JSON.stringify(newRankings)); // Save rankings
       return newRankings;
     });
 
-    // Store previous word and rank
     setPrevWord(word);
     setPrevRank(tier);
     setRankedWords((prev) => [...prev, word]);
 
-    // Flash effect
     setFlashColor(tierColors[tier]);
     setTimeout(() => setFlashColor(null), 500);
 
-    // Move to next word
     setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
   };
 
@@ -93,12 +101,6 @@ export default function Home() {
       setCurrentIndex(words.indexOf(lastWord));
     }
   };
-
-  // Debugging logs to check rankedWords and totalWords
-  useEffect(() => {
-    console.log("Ranked words count:", rankedWords.length);
-    console.log("Total words count:", totalWords);
-  }, [rankedWords, totalWords]);
 
   return (
     <div style={{ backgroundColor: flashColor || "white", transition: "background-color 0.3s ease-in-out" }}>
@@ -132,10 +134,8 @@ export default function Home() {
             {prevWord ? `:  ${prevWord}` : "--"}
           </button>
         </div>
-        {/* Show FinalTierList only when all words are rated */}
-        {rankedWords.length === totalWords && (
-          <FinalTierList rankings={rankings} />
-        )}
+
+        {rankedWords.length === totalWords && <FinalTierList rankings={rankings} />}
       </main>
     </div>
   );

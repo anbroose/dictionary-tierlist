@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
-import rawWords from "./words/smallerwords.json";
+import rawWords from "./words/cleanedWords.json";
 import { FaArrowLeft } from "react-icons/fa";
 import { FinalTierList } from "./components/FinalTierList";
 

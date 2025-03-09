@@ -5,7 +5,7 @@
   width: 100%;
   height: 100%;
   min-height: 100vh; /* Ensures it fully covers viewport */
-  background-color: #1A1A1A; 
+  background-color: #1a1a1a;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,30 +51,44 @@
 }
 
 /* Colors for tier letter cells */
-.s { background-color: #F3707B; }
-.a { background-color: #F7916D; }
-.b { background-color: #E2CB6D; }
-.c { background-color: #8CF5A5; }
-.d { background-color: #7DC7CD; }
-.e { background-color: #7D86DA; }
-.f { background-color: #7E66D9; }
+.s {
+  background-color: #f3707b;
+}
+.a {
+  background-color: #f7916d;
+}
+.b {
+  background-color: #e2cb6d;
+}
+.c {
+  background-color: #8cf5a5;
+}
+.d {
+  background-color: #7dc7cd;
+}
+.e {
+  background-color: #7d86da;
+}
+.f {
+  background-color: #7e66d9;
+}
 
 /* Style the word columns */
 .tierWords {
   border: 4px solid black;
-  background-color: #1A1A1A; /* Ensures the whole cell has a black background */
+  background-color: #1a1a1a; /* Ensures the whole cell has a black background */
   padding: 10px;
   max-height: 25vh; /* Controls height */
   overflow-x: auto; /* Enables horizontal scrolling */
   overflow-y: hidden; /* Prevents vertical scrolling */
   text-align: left;
-  
+
   display: grid;
   grid-auto-flow: column; /* Forces unlimited columns */
   grid-template-rows: repeat(3, auto); /* Limits rows to 3 */
   column-gap: 10px; /* Space between columns */
   row-gap: 6px; /* Space between words */
-  
+
   width: 100%;
   height: 12vh;
   box-sizing: border-box; /* Ensures padding doesn’t affect the total size */

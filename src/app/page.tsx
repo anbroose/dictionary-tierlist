@@ -53,14 +53,18 @@ export default function Home() {
 
   async function fetchWord(word: string) {
     try {
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+      const response = await fetch(
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+      );
       const data = await response.json();
 
       if (data && data.length > 0) {
         const firstMeaning = data[0].meanings[0];
         setWord(data[0].word);
         setPOS(firstMeaning?.partOfSpeech || "Unknown");
-        setDefinition(firstMeaning?.definitions[0]?.definition || "No definition available.");
+        setDefinition(
+          firstMeaning?.definitions[0]?.definition || "No definition available."
+        );
       } else {
         setWord("No words found!");
         setDefinition("");
@@ -103,9 +107,16 @@ export default function Home() {
   };
 
   return (
-    <div style={{ backgroundColor: flashColor || "white", transition: "background-color 0.3s ease-in-out" }}>
+    <div
+      style={{
+        backgroundColor: flashColor || "white",
+        transition: "background-color 0.3s ease-in-out",
+      }}
+    >
       <main className={styles.main}>
-        <h2 className={styles.wordCount}>{currentIndex + 1} / {words.length}</h2>
+        <h2 className={styles.wordCount}>
+          {currentIndex + 1} / {words.length}
+        </h2>
         <p className={styles.dictionaryWord}>{word}</p>
 
         <div className={styles.wordInfo}>
@@ -115,9 +126,9 @@ export default function Home() {
 
         <div className={styles.tierButtons}>
           {Object.keys(tierColors).map((tier) => (
-            <button 
-              key={tier} 
-              className={`${styles.tier} ${styles[tier.toLowerCase()]}`} 
+            <button
+              key={tier}
+              className={`${styles.tier} ${styles[tier.toLowerCase()]}`}
               onClick={() => handleTierClick(tier)}
             >
               {tier}
@@ -126,16 +137,24 @@ export default function Home() {
         </div>
 
         <div className={styles.buttonContainer}>
-          <button 
-            className={styles.previousButton} 
-            onClick={handlePreviousWord} 
+          <button
+            className={styles.previousButton}
+            onClick={handlePreviousWord}
           >
-            <FaArrowLeft style={{ color: prevRank ? tierColors[prevRank] : "black", marginRight: "8px" }} /> Previous Word 
+            <FaArrowLeft
+              style={{
+                color: prevRank ? tierColors[prevRank] : "black",
+                marginRight: "8px",
+              }}
+            />{" "}
+            Previous Word
             {prevWord ? `:  ${prevWord}` : "--"}
           </button>
         </div>
 
-        {rankedWords.length === totalWords && <FinalTierList rankings={rankings} />}
+        {rankedWords.length === totalWords && (
+          <FinalTierList rankings={rankings} />
+        )}
       </main>
     </div>
   );

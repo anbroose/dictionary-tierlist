@@ -29,22 +29,23 @@
 
 .dictionaryWord {
   margin-top: 8%;
-  font-size: 5rem;  /* Adjust the font size as needed */
-  font-weight: bold;  /* Makes the word bold */
-  padding: 0.4rem;  /* Adds some padding around the word to make the highlight more noticeable */
+  font-size: 5rem; /* Adjust the font size as needed */
+  font-weight: bold; /* Makes the word bold */
+  padding: 0.4rem; /* Adds some padding around the word to make the highlight more noticeable */
 }
 
 .wordInfo {
   padding: 1%;
   outline: auto;
- display: flex;
- height: 200px;
- width: 40%;
- min-width: 40%;
- margin-top: 2%;
- flex-direction: column;
- align-items: left; /* Vertically align the text */
- gap: 10px; /* Space between part of speech and definition */}
+  display: flex;
+  height: 200px;
+  width: 40%;
+  min-width: 40%;
+  margin-top: 2%;
+  flex-direction: column;
+  align-items: left; /* Vertically align the text */
+  gap: 10px; /* Space between part of speech and definition */
+}
 
 .partOfSpeech {
   font-size: 1.2rem;
@@ -75,13 +76,34 @@
 }
 
 /* Tier colors */
-.s { background: #F3707B; color: black;}
-.a { background: #F7916D; color: black;}
-.b { background: #E2CB6D; color: black; }
-.c { background: #8CF5A5; color: black;}
-.d { background: #7DC7CD; color: black;}
-.e { background: #7D86DA; color: black;}
-.f { background: #7E66D9; color: black;}
+.s {
+  background: #f3707b;
+  color: black;
+}
+.a {
+  background: #f7916d;
+  color: black;
+}
+.b {
+  background: #e2cb6d;
+  color: black;
+}
+.c {
+  background: #8cf5a5;
+  color: black;
+}
+.d {
+  background: #7dc7cd;
+  color: black;
+}
+.e {
+  background: #7d86da;
+  color: black;
+}
+.f {
+  background: #7e66d9;
+  color: black;
+}
 
 .previousButton {
   font-size: 1.5rem;

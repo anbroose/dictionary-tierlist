@@ -15,10 +15,12 @@ export default function Home() {
   const [pos, setPOS] = useState("Loading...");
   const [definition, setDefinition] = useState("Fetching definition...");
   const [flashColor, setFlashColor] = useState<string | null>(null);
-  const [rankedWords, setRankedWords] = useState<string[]>([]);
+  const [rankedWords] = useState<string[]>([]);  // No longer needed for preventing re-rating
   const [prevWord, setPrevWord] = useState<string | null>(null);
   const [prevRank, setPrevRank] = useState<string | null>(null);
   const [rankings, setRankings] = useState<{ [key: string]: string }>({});
+  
+  const [history, setHistory] = useState<number[]>([]); // Stack of previous indices
 
   const tierColors: { [key: string]: string } = {
     S: "#F3707B",
@@ -42,7 +44,6 @@ export default function Home() {
     setLoading(false);
   }, []);
 
-  // Fetch only when currentIndex is set and not loading
   useEffect(() => {
     if (currentIndex !== null && !loading) {
       fetchWord(words[currentIndex]);
@@ -75,40 +76,51 @@ export default function Home() {
   }
 
   const handleTierClick = (tier: string) => {
-    if (rankedWords.includes(word) || currentIndex === null) return;
+    if (currentIndex === null) return;
 
-    setRankings((prevRankings) => {
-      const newRankings = { ...prevRankings, [word]: tier };
-      // Save rankings
-      localStorage.setItem("rankings", JSON.stringify(newRankings));
-      return newRankings;
-    });
+    // Set the word's ranking regardless of whether it has been rated or not
+    const newRankings = { ...rankings, [word]: tier };
+
+    setRankings(newRankings);
+    localStorage.setItem("rankings", JSON.stringify(newRankings));
 
     setPrevWord(word);
     setPrevRank(tier);
-    setRankedWords((prev) => [...prev, word]);
-
     setFlashColor(tierColors[tier]);
     setTimeout(() => setFlashColor(null), 500);
 
+    // Save current index to history for going back
+    if (currentIndex !== null) {
+      setHistory((prev) => [...prev, currentIndex]);
+    }
+
+    // Go to the next word
     const newIndex = (currentIndex + 1) % words.length;
     setCurrentIndex(newIndex);
-    // Save progress
     localStorage.setItem("currentIndex", newIndex.toString());
   };
 
   const handlePreviousWord = () => {
-    if (rankedWords.length > 0) {
-      const lastWord = rankedWords[rankedWords.length - 1];
-      setPrevWord(lastWord);
-      setPrevRank(rankings[lastWord]);
+    if (history.length === 0) return; // No previous word to go back to
 
-      setRankedWords((prev) => prev.slice(0, -1));
-      setCurrentIndex(words.indexOf(lastWord));
-    }
+    const lastIndex = history[history.length - 1]; // Get last visited index
+    setHistory((prev) => prev.slice(0, -1)); // Remove last index from history
+    setCurrentIndex(lastIndex);
+    localStorage.setItem("currentIndex", lastIndex.toString());
   };
 
-  // Show loading
+  // Sync prevWord and prevRank correctly whenever history changes
+  useEffect(() => {
+    if (history.length > 0) {
+      const lastVisitedIndex = history[history.length - 1];
+      setPrevWord(words[lastVisitedIndex]);
+      setPrevRank(rankings[words[lastVisitedIndex]] || null);
+    } else {
+      setPrevWord(null);
+      setPrevRank(null);
+    }
+  }, [history, rankings]);
+
   if (loading) return <div className={styles.loadingScreen}>Loading...</div>;
 
   return (

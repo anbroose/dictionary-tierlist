@@ -15,11 +15,11 @@ export default function Home() {
   const [pos, setPOS] = useState("Loading...");
   const [definition, setDefinition] = useState("Fetching definition...");
   const [flashColor, setFlashColor] = useState<string | null>(null);
-  const [rankedWords] = useState<string[]>([]);  // No longer needed for preventing re-rating
+  const [rankedWords] = useState<string[]>([]); // No longer needed for preventing re-rating
   const [prevWord, setPrevWord] = useState<string | null>(null);
   const [prevRank, setPrevRank] = useState<string | null>(null);
   const [rankings, setRankings] = useState<{ [key: string]: string }>({});
-  
+
   const [history, setHistory] = useState<number[]>([]); // Stack of previous indices
 
   const tierColors: { [key: string]: string } = {

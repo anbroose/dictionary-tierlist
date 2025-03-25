@@ -107,8 +107,15 @@
 
 /* When zooming out, reduce font size and spacing */
 .zoomedOut .rankItem {
-  font-size: 1vw; /* Smaller text to fit more words */
-  margin: 1px; /* Reduces spacing */
+  font-size: 0.5vw; /* Much smaller text to fit more words */
+  margin: -3px; /* Reduce spacing between words */
+}
+
+/* Adjust layout for zoomed-out words */
+.zoomedOut {
+  grid-template-rows: repeat(9, auto); /* Allow more rows for words */
+  column-gap: 5px; /* Reduce column gap */
+  row-gap: 3px; /* Reduce row gap */
 }
 
 .buttonContainer {

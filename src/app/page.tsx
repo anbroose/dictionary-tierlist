@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
-import rawWords from "./words/cleanedWords.json";
+import rawWords from "./words/randomized_words.json";
 import { FaArrowLeft } from "react-icons/fa";
 import { FinalTierList } from "./components/FinalTierList";
 
@@ -15,11 +15,9 @@ export default function Home() {
   const [pos, setPOS] = useState("Loading...");
   const [definition, setDefinition] = useState("Fetching definition...");
   const [flashColor, setFlashColor] = useState<string | null>(null);
-  const [rankedWords] = useState<string[]>([]); // No longer needed for preventing re-rating
+  const [rankings, setRankings] = useState<{ [key: string]: string }>({}); // Keep rankings here
   const [prevWord, setPrevWord] = useState<string | null>(null);
   const [prevRank, setPrevRank] = useState<string | null>(null);
-  const [rankings, setRankings] = useState<{ [key: string]: string }>({});
-
   const [history, setHistory] = useState<number[]>([]); // Stack of previous indices
 
   const tierColors: { [key: string]: string } = {
@@ -121,6 +119,9 @@ export default function Home() {
     }
   }, [history, rankings]);
 
+  // Check if all words have been ranked
+  const allRanked = Object.keys(rankings).length === words.length;
+
   if (loading) return <div className={styles.loadingScreen}>Loading...</div>;
 
   return (
@@ -169,10 +170,8 @@ export default function Home() {
             {prevWord ? `:  ${prevWord}` : "--"}
           </button>
         </div>
-
-        {rankedWords.length === words.length && (
-          <FinalTierList rankings={rankings} />
-        )}
+        {/* <FinalTierList rankings={rankings} /> */}
+        {allRanked && <FinalTierList rankings={rankings} />}
       </main>
     </div>
   );

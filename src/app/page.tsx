@@ -8,12 +8,30 @@ import { FinalTierList } from "./components/FinalTierList";
 
 const words: string[] = rawWords as string[];
 
+type DictionaryDefinition = {
+  definition?: string;
+};
+
+type DictionaryMeaning = {
+  partOfSpeech?: string;
+  definitions?: DictionaryDefinition[];
+};
+
+type DictionaryEntry = {
+  word?: string;
+  meanings?: DictionaryMeaning[];
+};
+
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [word, setWord] = useState("Loading...");
   const [pos, setPOS] = useState("Loading...");
-  const [definition, setDefinition] = useState("Fetching definition...");
+  const [meaningGroups, setMeaningGroups] = useState<
+    { partOfSpeech: string; definitions: string[] }[]
+  >([
+    { partOfSpeech: "Loading...", definitions: ["Fetching definition..."] },
+  ]);
   const [flashColor, setFlashColor] = useState<string | null>(null);
   const [rankings, setRankings] = useState<{ [key: string]: string }>({}); // Keep rankings here
   const [prevWord, setPrevWord] = useState<string | null>(null);
@@ -53,22 +71,38 @@ export default function Home() {
       const response = await fetch(
         `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
       );
-      const data = await response.json();
+      const data = (await response.json()) as DictionaryEntry[];
 
       if (data && data.length > 0) {
-        const firstMeaning = data[0].meanings[0];
-        setWord(data[0].word);
-        setPOS(firstMeaning?.partOfSpeech || "Unknown");
-        setDefinition(
-          firstMeaning?.definitions[0]?.definition || "No definition available."
+        const groups =
+          data[0].meanings?.map((meaning) => ({
+            partOfSpeech: meaning.partOfSpeech || "Unknown",
+            definitions: (meaning.definitions ?? [])
+              .map((definition) => definition.definition)
+              .filter((definition): definition is string => Boolean(definition))
+              .slice(0, 2),
+          })) ?? [];
+
+        const formattedGroups =
+          groups.length > 0
+            ? groups
+            : [{ partOfSpeech: "Unknown", definitions: ["No definition available."] }];
+
+        setWord(data[0].word || "Unknown word");
+        setPOS(
+          formattedGroups
+            .map((group) => group.partOfSpeech)
+            .filter(Boolean)
+            .join(", ") || "Unknown"
         );
+        setMeaningGroups(formattedGroups);
       } else {
         setWord("No words found!");
-        setDefinition("");
+        setMeaningGroups([]);
       }
     } catch (error) {
       setWord("Error loading word.");
-      setDefinition("");
+      setMeaningGroups([]);
       console.log(error);
     }
   }
@@ -140,7 +174,26 @@ export default function Home() {
 
         <div className={styles.wordInfo}>
           <p className={styles.partOfSpeech}>{pos}</p>
-          <p className={styles.definition}>{definition}</p>
+
+          {meaningGroups.length > 0 ? (
+            meaningGroups.map((group) => (
+              <div key={group.partOfSpeech} className={styles.meaningGroup}>
+                <p className={styles.partOfSpeechLabel}>{group.partOfSpeech}</p>
+                <ul className={styles.definitionList}>
+                  {group.definitions.map((definition, index) => (
+                    <li
+                      key={`${group.partOfSpeech}-${definition}-${index}`}
+                      className={styles.definition}
+                    >
+                      {definition}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          ) : (
+            <p className={styles.definition}>No definition available.</p>
+          )}
         </div>
 
         <div className={styles.tierButtons}>

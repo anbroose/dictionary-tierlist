@@ -45,15 +45,41 @@
   flex-direction: column;
   align-items: left; /* Vertically align the text */
   gap: 10px; /* Space between part of speech and definition */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .partOfSpeech {
   font-size: 1.2rem;
   font-style: italic;
+  margin: 0;
+}
+
+.meaningGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.partOfSpeechLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.definitionList {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
 }
 
 .definition {
   font-size: 1.2rem;
+  line-height: 1.4;
 }
 
 .tierButtons {

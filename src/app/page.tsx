@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./page.module.css";
 import rawWords from "./words/randomized_words.json";
 import { FaArrowLeft } from "react-icons/fa";
@@ -23,15 +23,15 @@ type DictionaryEntry = {
 };
 
 export default function Home() {
+  const fetchRequestId = useRef(0);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [word, setWord] = useState("Loading...");
   const [pos, setPOS] = useState("Loading...");
   const [meaningGroups, setMeaningGroups] = useState<
     { partOfSpeech: string; definitions: string[] }[]
-  >([
-    { partOfSpeech: "Loading...", definitions: ["Fetching definition..."] },
-  ]);
+  >([]);
+  const [isWordLoading, setIsWordLoading] = useState(true);
   const [flashColor, setFlashColor] = useState<string | null>(null);
   const [rankings, setRankings] = useState<{ [key: string]: string }>({}); // Keep rankings here
   const [prevWord, setPrevWord] = useState<string | null>(null);
@@ -67,21 +67,51 @@ export default function Home() {
   }, [currentIndex, loading]);
 
   async function fetchWord(word: string) {
+    const requestId = ++fetchRequestId.current;
+
+    setIsWordLoading(true);
+    setWord("Loading...");
+    setPOS("Loading...");
+    setMeaningGroups([]);
+
     try {
       const response = await fetch(
         `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
       );
       const data = (await response.json()) as DictionaryEntry[];
 
+      if (requestId !== fetchRequestId.current) return;
+
       if (data && data.length > 0) {
         const groups =
-          data[0].meanings?.map((meaning) => ({
-            partOfSpeech: meaning.partOfSpeech || "Unknown",
-            definitions: (meaning.definitions ?? [])
-              .map((definition) => definition.definition)
-              .filter((definition): definition is string => Boolean(definition))
-              .slice(0, 2),
-          })) ?? [];
+          data[0].meanings?.reduce<{ partOfSpeech: string; definitions: string[] }[]>(
+            (acc, meaning) => {
+              const partOfSpeech = meaning.partOfSpeech || "Unknown";
+              const uniqueDefinitions = [...new Set(
+                (meaning.definitions ?? [])
+                  .map((definition) => definition.definition)
+                  .filter((definition): definition is string => Boolean(definition))
+                  .slice(0, 2)
+              )];
+
+              if (uniqueDefinitions.length === 0) return acc;
+
+              const existingGroup = acc.find(
+                (group) => group.partOfSpeech === partOfSpeech
+              );
+
+              if (existingGroup) {
+                existingGroup.definitions = [
+                  ...new Set([...existingGroup.definitions, ...uniqueDefinitions]),
+                ].slice(0, 2);
+              } else {
+                acc.push({ partOfSpeech, definitions: uniqueDefinitions });
+              }
+
+              return acc;
+            },
+            []
+          ) ?? [];
 
         const formattedGroups =
           groups.length > 0
@@ -98,12 +128,19 @@ export default function Home() {
         setMeaningGroups(formattedGroups);
       } else {
         setWord("No words found!");
+        setPOS("Unknown");
         setMeaningGroups([]);
       }
     } catch (error) {
+      if (requestId !== fetchRequestId.current) return;
       setWord("Error loading word.");
+      setPOS("Unknown");
       setMeaningGroups([]);
       console.log(error);
+    } finally {
+      if (requestId === fetchRequestId.current) {
+        setIsWordLoading(false);
+      }
     }
   }
 
@@ -175,14 +212,19 @@ export default function Home() {
         <div className={styles.wordInfo}>
           <p className={styles.partOfSpeech}>{pos}</p>
 
-          {meaningGroups.length > 0 ? (
-            meaningGroups.map((group) => (
-              <div key={group.partOfSpeech} className={styles.meaningGroup}>
+          {isWordLoading ? (
+            <p className={styles.definition}>Fetching definition...</p>
+          ) : meaningGroups.length > 0 ? (
+            meaningGroups.map((group, groupIndex) => (
+              <div
+                key={`${group.partOfSpeech}-${groupIndex}`}
+                className={styles.meaningGroup}
+              >
                 <p className={styles.partOfSpeechLabel}>{group.partOfSpeech}</p>
                 <ul className={styles.definitionList}>
                   {group.definitions.map((definition, index) => (
                     <li
-                      key={`${group.partOfSpeech}-${definition}-${index}`}
+                      key={`${group.partOfSpeech}-${groupIndex}-${definition}-${index}`}
                       className={styles.definition}
                     >
                       {definition}

@@ -26,6 +26,7 @@ export default function Home() {
   const [flashColor, setFlashColor] = useState<string | null>(null);
   const [rankings, setRankings] = useState<Record<string, string>>({});
   const [history, setHistory] = useState<number[]>([]);
+  const [showFinalTierList, setShowFinalTierList] = useState(false);
   const selectedWord =
     currentIndex !== null && !loading ? words[currentIndex] : null;
   const { word, partOfSpeech, meaningGroups, isLoading: isWordLoading } =
@@ -34,6 +35,7 @@ export default function Home() {
   useEffect(() => {
     const savedIndex = localStorage.getItem("currentIndex");
     const savedHistory = localStorage.getItem("history");
+    const savedRankings = localStorage.getItem("rankings");
 
     if (savedIndex !== null) {
       setCurrentIndex(parseInt(savedIndex, 10));
@@ -54,6 +56,33 @@ export default function Home() {
         }
       } catch (error) {
         console.error("Failed to parse saved word history:", error);
+      }
+    }
+
+    if (savedRankings !== null) {
+      try {
+        const parsedRankings: unknown = JSON.parse(savedRankings);
+        if (
+          parsedRankings === null ||
+          typeof parsedRankings !== "object" ||
+          Array.isArray(parsedRankings)
+        ) {
+          throw new Error("Saved rankings must be an object.");
+        }
+
+        const restoredRankings: Record<string, string> = {};
+        for (const [rankedWord, tier] of Object.entries(parsedRankings)) {
+          if (
+            words.includes(rankedWord) &&
+            typeof tier === "string" &&
+            Object.keys(tierColors).includes(tier)
+          ) {
+            restoredRankings[rankedWord] = tier;
+          }
+        }
+        setRankings(restoredRankings);
+      } catch (error) {
+        console.error("Failed to parse saved rankings:", error);
       }
     }
 
@@ -147,7 +176,24 @@ export default function Home() {
             {prevWord ? `:  ${prevWord}` : "--"}
           </button>
         </div>
-        {allRanked && <FinalTierList rankings={rankings} />}
+        {process.env.NODE_ENV === "development" && !allRanked && (
+          <button
+            className={styles.debugButton}
+            onClick={() => setShowFinalTierList(true)}
+          >
+            Debug: Show Final Page
+          </button>
+        )}
+        {(allRanked || showFinalTierList) && (
+          <FinalTierList
+            rankings={rankings}
+            onClose={
+              showFinalTierList
+                ? () => setShowFinalTierList(false)
+                : undefined
+            }
+          />
+        )}
       </main>
     </div>
   );

@@ -3,9 +3,10 @@ import styles from "./FinalTierList.module.css";
 
 interface FinalTierListProps {
   rankings: { [key: string]: string };
+  onClose?: () => void;
 }
 
-export const FinalTierList = ({ rankings }: FinalTierListProps) => {
+export const FinalTierList = ({ rankings, onClose }: FinalTierListProps) => {
   const [isZoomedOut, setIsZoomedOut] = useState(false); // Track zoom state
 
   const groupedByTier = Object.entries(rankings).reduce((acc, [word, tier]) => {
@@ -45,6 +46,11 @@ export const FinalTierList = ({ rankings }: FinalTierListProps) => {
         </table>
 
         <div className={styles.buttonContainer}>
+          {onClose && (
+            <button className={styles.closeButton} onClick={onClose}>
+              Close Preview
+            </button>
+          )}
           {!isZoomedOut && (
             <button className={styles.zoomButton} onClick={handleZoomOut}>
               Fit All Words

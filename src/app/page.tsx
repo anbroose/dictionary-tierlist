@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import rawWords from "./words/randomized_words.json";
 import { FaArrowLeft } from "react-icons/fa";
 import { FinalTierList } from "./components/FinalTierList";
+import { WordAudioButton } from "./components/WordAudioButton";
 
 const words: string[] = rawWords as string[];
 
@@ -207,35 +208,41 @@ export default function Home() {
           {currentIndex !== null ? currentIndex + 1 : "Loading"} /{" "}
           {words.length}
         </h2>
-        <p className={styles.dictionaryWord}>{word}</p>
+        <div className={styles.wordHeader}>
+          <p className={styles.dictionaryWord}>{word}</p>
+        </div>
 
-        <div className={styles.wordInfo}>
-          <p className={styles.partOfSpeech}>{pos}</p>
+        <div className={styles.wordAndDefinition}>
+          <div className={styles.wordInfo}>
+            <p className={styles.partOfSpeech}>{pos}</p>
 
-          {isWordLoading ? (
-            <p className={styles.definition}>Fetching definition...</p>
-          ) : meaningGroups.length > 0 ? (
-            meaningGroups.map((group, groupIndex) => (
-              <div
-                key={`${group.partOfSpeech}-${groupIndex}`}
-                className={styles.meaningGroup}
-              >
-                <p className={styles.partOfSpeechLabel}>{group.partOfSpeech}</p>
-                <ul className={styles.definitionList}>
-                  {group.definitions.map((definition, index) => (
-                    <li
-                      key={`${group.partOfSpeech}-${groupIndex}-${definition}-${index}`}
-                      className={styles.definition}
-                    >
-                      {definition}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          ) : (
-            <p className={styles.definition}>No definition available.</p>
-          )}
+            {isWordLoading ? (
+              <p className={styles.definition}>Fetching definition...</p>
+            ) : meaningGroups.length > 0 ? (
+              meaningGroups.map((group, groupIndex) => (
+                <div
+                  key={`${group.partOfSpeech}-${groupIndex}`}
+                  className={styles.meaningGroup}
+                >
+                  <p className={styles.partOfSpeechLabel}>{group.partOfSpeech}</p>
+                  <ul className={styles.definitionList}>
+                    {group.definitions.map((definition, index) => (
+                      <li
+                        key={`${group.partOfSpeech}-${groupIndex}-${definition}-${index}`}
+                        className={styles.definition}
+                      >
+                        {definition}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <p className={styles.definition}>No definition available.</p>
+            )}
+          </div>
+
+          <WordAudioButton word={word} />
         </div>
 
         <div className={styles.tierButtons}>

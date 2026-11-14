@@ -51,6 +51,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedIndex = localStorage.getItem("currentIndex");
+    const savedHistory = localStorage.getItem("history");
 
     if (savedIndex !== null) {
       setCurrentIndex(parseInt(savedIndex, 10));
@@ -58,8 +59,30 @@ export default function Home() {
       setCurrentIndex(0);
     }
 
+    if (savedHistory !== null) {
+      try {
+        const parsedHistory: unknown = JSON.parse(savedHistory);
+        if (Array.isArray(parsedHistory)) {
+          setHistory(
+            parsedHistory.filter(
+              (index): index is number =>
+                Number.isInteger(index) && index >= 0 && index < words.length
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Failed to parse saved word history:", error);
+      }
+    }
+
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      localStorage.setItem("history", JSON.stringify(history));
+    }
+  }, [history, loading]);
 
   useEffect(() => {
     if (currentIndex !== null && !loading) {
